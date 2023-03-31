@@ -1,0 +1,68 @@
+services:
+  db:
+    image: postgres:14
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_DB=${PG_NAME}
+      - PGPORT=${PG_PORT}
+      - POSTGRES_PORT=${PG_PORT}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # NOTE: 1) pgdata is the symbolic name of the REAL volume on the HOST. 
+      #          It's not conflicting with the same names of other containers.
+      # 2) /var/lib/postgresql/data is the location of the volume INSIDE the container
+    restart: on-failure
+    ports:
+      - ${PG_PORT}:${PG_PORT}
+    networks:
+      - dolist-net
+
+  bot:
+    image: dolistbot:latest
+    build:
+      context: .
+      dockerfile: bot.Dockerfile
+    env_file:
+      - ./.env
+    restart: on-failure:3
+    depends_on:
+      - db
+    ports:
+      - ${BOT_PORT}:3000
+    networks:
+      - dolist-net
+
+  server:
+    image: dolistserver:latest
+    build: 
+      context: webapp/server
+      dockerfile: ../../server.Dockerfile
+    env_file:
+      - ./.env
+    restart: on-failure:3
+    depends_on:
+      - db
+      - bot
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    networks:
+      - dolist-net
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - dolist-net
+    depends_on:
+      - db
+      - bot
+
+volumes:
+  pgdata:
+networks:
+  dolist-net:

@@ -1,0 +1,117 @@
+:root {
+  /* Telegram WebApp theme colors */
+  --tg-primary-color: #0088cc;
+  --tg-secondary-color: #a0a7b0;
+  --tg-tertiary-color: #e6e6e6;
+  --tg-accent-color: #34afed;
+  --tg-background-color: #f7f8fa;
+  --tg-text-color: #4a4a4a;
+}
+
+input[type="text"] {
+  outline: none;
+}
+
+body {
+  background-color: var(--tg-background-color);
+  color: var(--tg-text-color);
+  font-family: "Helvetica Neue", sans-serif;
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  background-color: var(--tg-primary-color);
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  position: sticky;
+  bottom: 0;
+  margin: 0;
+  padding: 16px;
+  background: inherit;
+}
+
+.form input[type="text"] {
+  border-style: solid;
+  border-color: transparent;
+  border-radius: 3px;
+  font-size: 16px;
+  margin-right: 10px;
+  padding: 10px;
+  width: 100%;
+}
+
+.form button[type="submit"] {
+  background-color: var(--tg-accent-color);
+  border: none;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 16px;
+  padding: 10px;
+}
+.form button[type="submit"]:not(:disabled) {
+  cursor: pointer;
+}
+.form button[type="submit"]:disabled {
+  opacity: 0.5;
+  background-color: var(--tg-secondary-color);
+  color: var(--tg-text-color);
+}
+.items-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  list-style: none;
+  padding-inline-start: 16px;
+}
+
+input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+label {
+  white-space: pre;
+}
+
+.items-list li {
+  background-color: #fff;
+  border-bottom: 1px solid var(--tg-tertiary-color);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  height: 40px;
+}
+
+.items-list li:last-child {
+  border-bottom: none;
+}
+
+.items-list li label {
+  cursor: pointer;
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.items-list li input[type="checkbox"] {
+  cursor: pointer;
+  height: 18px;
+  width: 18px;
+  flex-shrink: 0;
+}
+
+.items-list li.completed {
+  color: var(--tg-secondary-color);
+  text-decoration: line-through;
+}
+input[type="text"]:focus-visible {
+  border-color: var(--tg-accent-color);
+}
