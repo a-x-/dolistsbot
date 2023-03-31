@@ -7,9 +7,7 @@ $itemsList.addEventListener("change", handleCheckboxChange);
 // Fetch items from API endpoint
 fetch(`/api/items?chatId=${chatId}&messageId=${messageId}`)
   .then((response) => response.json())
-  .then((data) => {
-    renderItems(data);
-  });
+  .then((data) => renderItems(data));
 
 const $form = $(HTMLFormElement, "add-item-form");
 const $input = $(HTMLInputElement, "add-item-input");
@@ -111,6 +109,8 @@ async function handleCheckboxChange(event) {
       }
     );
     animate($li, "request-success");
+    "Telegram" in window &&
+      Telegram.WebApp.HapticFeedback?.selectionChanged?.();
   } catch (e) {
     console.error(e);
     event.target.checked = !event.target.checked;
@@ -118,6 +118,16 @@ async function handleCheckboxChange(event) {
   }
 }
 
+if ("Telegram" in window) {
+  Telegram.WebApp.MainButton?.setParams({
+    color: "#0000ff",
+    is_active: true,
+    is_visible: true,
+    text: "Готово",
+  }).onClick(() => {
+    Telegram.WebApp.close();
+  });
+}
 // Initialize TDLib
 // const TDWebApp = window.Telegram.WebApp;
 // TDWebApp.init({

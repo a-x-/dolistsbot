@@ -4,7 +4,16 @@ import type { Context, NarrowedContext, Telegraf } from "telegraf";
 import type { Update } from "typegram";
 import type { Message, Document, Voice } from "telegraf/types";
 
-export type Ctx<T> = NarrowedContext<Context<Update>, Update.MessageUpdate<T>>;
+export type Ctx<T> = //T extends ChannelPostUpdate
+  //? NarrowedContext<Context<ChannelPostUpdate>, Update.MessageUpdate<T>> :
+  NarrowedContext<Context<Update>, Update.MessageUpdate<T>>;
+export type ChannelCtx<T> = NarrowedContext<
+  Context<Update>,
+  Update.ChannelPostUpdate<T>
+>;
+export type TextMessageCtx =
+  | Ctx<Message.TextMessage>
+  | ChannelCtx<Message.TextMessage>;
 
 // import * as tt from "telegraf/typings/telegram-types";
 // import type { Context, Middleware, NarrowedContext, Telegraf } from "telegraf";

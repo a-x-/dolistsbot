@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "checkJs": true,
-    // "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/telegram-webapps-types"
+    ],
+    "lib": ["DOM", "DOM.Iterable", "ESNext"]
   },
   "typeAcquisition": {
     "include": [

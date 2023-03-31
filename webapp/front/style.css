@@ -19,6 +19,7 @@ body {
   font-size: 16px;
   margin: 0;
   padding: 0;
+  width: 100vw;
 }
 
 .header {
@@ -99,6 +100,9 @@ label {
   cursor: pointer;
   display: inline-block;
   margin-left: 10px;
+  width: 100%;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
 }
 
 .items-list li input[type="checkbox"] {

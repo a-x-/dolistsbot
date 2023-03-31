@@ -31,22 +31,7 @@ services:
     depends_on:
       - db
     ports:
-      - ${BOT_PORT}:3000
-    networks:
-      - dolist-net
-
-  server:
-    image: dolistserver:latest
-    build: 
-      context: webapp/server
-      dockerfile: ../../server.Dockerfile
-    env_file:
-      - ./.env
-    restart: on-failure:3
-    depends_on:
-      - db
-      - bot
-    ports:
+      - ${BOT_PORT}:${BOT_PORT}
       - ${SERVER_PORT}:${SERVER_PORT}
     networks:
       - dolist-net

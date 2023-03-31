@@ -1,29 +1,34 @@
 import { Message } from "telegraf/types";
-import { Ctx } from "../telegraf.js";
+import { ChannelCtx, Ctx, TextMessageCtx } from "../telegraf.js";
 // import { findMessageId, markItemComplete } from "./model.js";
 // import { parseItemCommandText } from "./utils.js";
 import { createList, createListItem } from "./model.js";
 import { Markup } from "telegraf";
+import { getAnyMessage } from "./utils.js";
 
-export async function handleNewList(ctx: Ctx<Message.TextMessage>) {
-  const { message } = ctx;
+export async function handleNewList(ctx: TextMessageCtx) {
+  const message = getAnyMessage(ctx);
+  if (!message) return;
+
   const items = message.text.split("\n").slice(1); // Ignore the first line starting with #todo
   // const { listId } = parseItemCommandText(items[0]);
   // if (listId == null) throw new Error("MISSED_LIST_ID");
-  await createList(ctx.chat.id, message.message_id);
+  await createList(ctx.chat.id, message.message_id, message.text);
   // TODO: bulk insert
   for (const item of items) {
     await createListItem(
       ctx.chat.id,
       message.message_id,
-      item.replace(/^[-✅✔✓]\s*/, "") // todo: sub-lists
+      item.replace(/^([-✅✔✓]|- \[ \]|- \[x\])\s*/, "") // todo: sub-lists
     );
   }
   const chatId = message.chat.id;
   const messageId = message.message_id;
   const username = ctx.from?.username || ctx.chat.id;
   const messageLink = `https://t.me/${username}/${messageId}`;
-  const button = Markup.button.webApp(
+  const isChannel = message.chat.type === "channel";
+  const kind = isChannel ? "url" : "webApp";
+  const button = Markup.button[kind](
     "Tick items",
     `https://dolistbot.invntrm.ru/?chatId=${chatId}&messageId=${messageId}&messageLink=${messageLink}`
   );
