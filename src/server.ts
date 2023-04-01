@@ -2,7 +2,7 @@
 // SERVER
 //
 
-import { psqlQuery } from "./db.js";
+import { psqlQuery } from "./db/setup.js";
 import { getItem, getItems } from "./model.js";
 import { res } from "./utils.js";
 

@@ -1,33 +1,24 @@
 // TODO: nested sub-items
 // TODO: re-index items on edit
-// TODO: delete, edit, reorder
+// TODO: delete, edit, reorder,
+// TODO: add button to source message (in the channel only)
 // TODO: work in personal chats with tdl
+
+// EPIC: sync with notion databases and inside tasks todo-lists by #todo #topic tags
+// EPIC: use inline mode to find tasks in notion and link them to todo items
 
 //
 // BOT
 //
 
-import { pool, psqlQuery } from "./db.js";
+import { pool } from "./db/setup.js"; // MUST be imported first!
 import { Telegraf } from "telegraf";
 import { ChannelCtx, Ctx, Message } from "../telegraf.js";
 import { handle } from "./handlers.js";
 import { isAnyTextMessageCtx, getAnyMessage } from "./utils.js";
-import nodeCrypto from "crypto";
 import server from "./server.js";
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-const cryptoCreateHash = nodeCrypto.createHash;
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-nodeCrypto.createHash = (_algo: string, ...args: any[]) => {
-  console.log(
-    "HACK(crypto.createHash): sha3-256 -> sha256. Fix TypeError: Unsupported algorithm sha3-256"
-  );
-  const algo = _algo === "sha3-256" ? "sha256" : _algo;
-  return cryptoCreateHash(algo, ...args);
-};
+import "./utils/fix-crypto.js";
+import "./db/migrations.js";
 
 if (!process.env.BOT_TOKEN) throw new Error("SET_BOT_TOKEN");
 if (!process.env.PG_URL) throw new Error("SET_DATABASE_URL");
@@ -36,25 +27,6 @@ if (!process.env.BOT_WEBHOOK_DOMAIN) throw new Error("SET_WEBHOOK_DOMAIN");
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 globalThis.bot = bot;
-
-// migration
-psqlQuery(`
-CREATE TABLE IF NOT EXISTS lists (
-  message_id INTEGER NOT NULL,
-  chat_id INTEGER NOT NULL,
-  list_text TEXT NOT NULL,
-  PRIMARY KEY (message_id, chat_id)
-);
-
-CREATE TABLE IF NOT EXISTS items (
-  id SERIAL PRIMARY KEY,
-  message_id INTEGER NOT NULL,
-  chat_id INTEGER NOT NULL,
-  item_text TEXT,
-  completed BOOLEAN DEFAULT false,
-  FOREIGN KEY (message_id, chat_id) REFERENCES lists (message_id, chat_id)
-);
-`);
 
 // Handle messages starting with "#todo"
 bot.on("message", handleMessage);

@@ -1,12 +1,12 @@
 import { Pool, QueryResult, QueryResultRow } from "pg";
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config(); // MUST be executed on app init before any other code!
 
 export const pool = new Pool({
   connectionString: process.env.PG_URL,
 });
 
-globalThis.pgPool = pool;
+globalThis.pgPool = pool; // MUST be set on app init before any other code!
 
 export async function psqlQuery<R extends QueryResultRow>(
   query: string,

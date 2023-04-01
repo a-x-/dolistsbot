@@ -12,27 +12,6 @@ When i need to complete item, I replace "-" sign by "✅" one.
 When list (almost) complete usually I start new one and copy actual items.
 Mostly I work with saved messages chat, but also I have some Channels with myself only for some special topics. Channel allows me edit messages anytime and add comments 
 
-This bot empower this workflow with little change: commands like /a1 instead of "-"
-
-Example:
-```
-#todo #job
-/a1 fix bug ABC-123
-/a2 add feature XYZ-456
-/a3 add feature XYZ-789
-```
-
-When I complete task I just click on it and it will be marked as complete:
-```
-#todo #job
-✅ fix bug ABC-123
-/a2 add feature XYZ-456
-/a3 add feature XYZ-789
-```
-
-When I need to add new item I just add it to the end of list by usual editing!
-
-
 # Architecture
 ### Tech stack
 ts, bun.sh, telegraf, tdlib, postgres, docker, caddy, github actions

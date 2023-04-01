@@ -1,4 +1,4 @@
-import { psqlQuery } from "./db.js";
+import { psqlQuery } from "./db/setup.js";
 
 export async function createList(
   chatId: number,
