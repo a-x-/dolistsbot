@@ -1,11 +1,12 @@
 // TODO: nested sub-items
 // TODO: re-index items on edit
 // TODO: delete, edit, reorder,
-// TODO: add button to source message (in the channel only)
+// TODO: add button to source message, w/o "^" fake messge (in the channel only)
 // TODO: work in personal chats with tdl
 
 // EPIC: sync with notion databases and inside tasks todo-lists by #todo #topic tags
 // EPIC: use inline mode to find tasks in notion and link them to todo items
+// EPIC: Быстрый набор фокуса дня из несколькоих тудулистов из разных #топиков
 
 //
 // BOT
@@ -13,9 +14,9 @@
 
 import { pool } from "./db/setup.js"; // MUST be imported first!
 import { Telegraf } from "telegraf";
-import { ChannelCtx, Ctx, Message } from "../telegraf.js";
+import { AnyCtx, Message } from "../telegraf.js";
 import { handle } from "./handlers.js";
-import { isAnyTextMessageCtx, getAnyMessage } from "./utils.js";
+import { isAnyTextMessageCtx, getAnyMessage } from "./utils/utils.js";
 import server from "./server.js";
 import "./utils/fix-crypto.js";
 import "./db/migrations.js";
@@ -31,8 +32,10 @@ globalThis.bot = bot;
 // Handle messages starting with "#todo"
 bot.on("message", handleMessage);
 bot.on("channel_post", handleMessage);
+bot.on("edited_message", handleEdit);
+bot.on("edited_channel_post", handleEdit);
 
-async function handleMessage(ctx: Ctx<Message> | ChannelCtx<Message>) {
+async function handleMessage(ctx: AnyCtx<Message>) {
   console.log("on message", ctx.message);
   if (!isAnyTextMessageCtx(ctx)) return;
   const message = getAnyMessage(ctx);
@@ -47,6 +50,17 @@ async function handleMessage(ctx: Ctx<Message> | ChannelCtx<Message>) {
     await handle.slashCommand(ctx);
   }
 }
+async function handleEdit(ctx: AnyCtx<Message>) {
+  if (!isAnyTextMessageCtx(ctx)) return;
+  const message = getAnyMessage(ctx);
+  if (!message) return;
+  console.log("on edit", message.text);
+
+  // #todo
+  if (message.text.startsWith("#todo")) {
+    await handle.reindexList(ctx);
+  }
+}
 
 const webhook = {
   domain: process.env.BOT_WEBHOOK_DOMAIN,
@@ -58,9 +72,7 @@ console.log("starting bot...", webhook);
 // Start the bot
 bot.launch({ webhook });
 
-console.log(
-  "bot started! " + process.env.BOT_NICK?.replace("@", "https://t.me/")
-);
+console.log("bot started! " + process.env.BOT_NICK?.replace("@", "https://t.me/"));
 
 // Enable graceful stop
 // SIGTERM: politely ask a process to terminate

@@ -1,5 +1,8 @@
-const chatId = new URLSearchParams(window.location.search).get("chatId");
-const messageId = new URLSearchParams(window.location.search).get("messageId");
+const query = new URLSearchParams(window.location.search);
+const [chatId, messageId] = [query.get("chatId"), query.get("messageId")];
+const state = {
+  items: [],
+};
 
 const $itemsList = document.getElementById("items-list");
 $itemsList.addEventListener("change", handleCheckboxChange);
@@ -7,7 +10,10 @@ $itemsList.addEventListener("change", handleCheckboxChange);
 // Fetch items from API endpoint
 fetch(`/api/items?chatId=${chatId}&messageId=${messageId}`)
   .then((response) => response.json())
-  .then((data) => renderItems(data));
+  .then((data) => {
+    state.items = data.items;
+    renderItems(data);
+  });
 
 const $form = $(HTMLFormElement, "add-item-form");
 const $input = $(HTMLInputElement, "add-item-input");
@@ -37,13 +43,13 @@ function renderItems(data) {
   });
 }
 
-$form.addEventListener("submit", handleSubmit);
+$form.addEventListener("submit", handleNewItemSubmit);
 
 /**
  * @param {Event} event
  * @returns {Promise<void>}
  */
-function handleSubmit(event) {
+function handleNewItemSubmit(event) {
   event.preventDefault();
   const itemText = $input.value;
   if (!itemText) return;
@@ -99,7 +105,7 @@ async function handleCheckboxChange(event) {
     await fetch(
       `/api/items/${itemId}?chatId=${chatId}&messageId=${messageId}`,
       {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
@@ -109,11 +115,32 @@ async function handleCheckboxChange(event) {
       }
     );
     animate($li, "request-success");
-    "Telegram" in window &&
-      Telegram.WebApp.HapticFeedback?.selectionChanged?.();
   } catch (e) {
     console.error(e);
     event.target.checked = !event.target.checked;
+    animate($li, "request-error");
+  }
+}
+
+/**
+ * @param {Event} event
+ */
+async function handleDeleteClick(event) {
+  if (!(event.target instanceof HTMLInputElement)) return;
+
+  const $li = findParentByCondition(
+    event.target,
+    (el) => el.tagName.toUpperCase() === "LI"
+  );
+  const itemId = $li.dataset.id;
+  try {
+    await fetch(`/api/items/${itemId}`, {
+      method: "DELETE",
+    });
+    $li.remove();
+    state.items = state.items.filter((item) => item.id !== itemId);
+  } catch (error) {
+    console.error(error);
     animate($li, "request-error");
   }
 }

@@ -4,7 +4,8 @@
 
 import { psqlQuery } from "./db/setup.js";
 import { getItem, getItems } from "./model.js";
-import { res } from "./utils.js";
+import { updateMessageKeepButton } from "./utils/tg.js";
+import { res } from "./utils/utils.js";
 
 console.log("process.env.PG_URL", process.env.PG_URL);
 const port = process.env.SERVER_PORT || 3000;
@@ -29,89 +30,63 @@ export default {
           const items = await getItems(Number(chatId), Number(messageId));
           return res({ items });
         }
-        case "PUT": {
+        case "PATCH": {
           const itemId = Number(urlObj.pathname.replace("/api/items/", ""));
           const body = await req.json<TodoItem>();
           const { completed } = body;
           const query = "UPDATE items SET completed = $1 WHERE id = $2";
           await psqlQuery(query, [completed, itemId]);
           const { item_text } = await getItem(itemId);
-          await updateMessageByNewItemToggleItem(
-            chatId,
-            Number(messageId),
-            item_text,
-            completed
-          );
+          await updateMessageByItemToggleItem(Number(chatId), Number(messageId), item_text, completed);
           return res({ success: true });
         }
         case "POST": {
           const body = await req.json<TodoItem>();
           const { item_text } = body;
-          await updateMessageByNewItem(
-            Number(chatId),
-            Number(messageId),
-            item_text
-          );
+          await updateMessageByNewItem(Number(chatId), Number(messageId), item_text);
           const items = await getItems(Number(chatId), Number(messageId));
           return res({ items });
+        }
+        case "DELETE": {
+          const itemId = Number(urlObj.pathname.replace("/api/items/", ""));
+          const query = "DELETE FROM items WHERE id = $1";
+          await psqlQuery(query, [itemId]);
+          const { item_text } = await getItem(itemId);
         }
         default:
           return res({ error: "Invalid method" }, 405);
       }
     } catch (e) {
       console.error(e);
-      return res(
-        { error: e instanceof Error ? e.message : "Internal server error" },
-        500
-      );
+      return res({ error: e instanceof Error ? e.message : "Internal server error" }, 500);
     }
   },
 };
 
-async function updateMessageByNewItem(
-  chatId: number,
-  messageId: number,
-  item_text: number
-) {
+async function updateMessageByNewItem(chatId: number, messageId: number, item_text: number) {
   const addQuery = `INSERT INTO items (chat_id, message_id, item_text) VALUES ($1, $2, $3)`;
   await psqlQuery(addQuery, [chatId, messageId, item_text]);
-  const getTextQuery =
-    "SELECT list_text FROM lists WHERE chat_id = $1 AND message_id = $2";
-  const { list_text } = (await psqlQuery(getTextQuery, [chatId, messageId]))
-    .rows[0];
+  const getTextQuery = "SELECT list_text FROM lists WHERE chat_id = $1 AND message_id = $2";
+  const { chat_type, list_text } = (await psqlQuery(getTextQuery, [chatId, messageId])).rows[0];
   const newText = list_text + "\n- " + item_text;
-  const updateTextQuery =
-    "UPDATE lists SET list_text = $1 WHERE chat_id = $2 AND message_id = $3";
+  const updateTextQuery = "UPDATE lists SET list_text = $1 WHERE chat_id = $2 AND message_id = $3";
   await psqlQuery(updateTextQuery, [newText, chatId, messageId]);
 
-  await bot.telegram.editMessageText(chatId, messageId, undefined, newText);
+  const msgObj = { id: messageId, text: newText, chatType: chat_type };
+  await updateMessageKeepButton(chatId, msgObj);
 }
-async function updateMessageByNewItemToggleItem(
-  chatId: string,
-  messageId: number,
-  item_text: string,
-  completed: boolean
-) {
-  const getTextQuery =
-    "SELECT list_text FROM lists WHERE chat_id = $1 AND message_id = $2";
-  const { list_text } = (await psqlQuery(getTextQuery, [chatId, messageId]))
-    .rows[0];
+
+async function updateMessageByItemToggleItem(chatId: number, messageId: number, item_text: string, completed: boolean) {
+  const getTextQuery = "SELECT list_text, chat_type FROM lists WHERE chat_id = $1 AND message_id = $2";
+  const { chat_type, list_text } = (await psqlQuery(getTextQuery, [chatId, messageId])).rows[0];
   const item_text_ = (completed ? "✅ " : "- ") + item_text;
-  const list_text_ = list_text.replace(
-    new RegExp("^([-✅✔✓]|- \\[ \\]|- \\[x\\])\\s*" + item_text, "m"),
-    item_text_
-  );
-  const updateTextQuery =
-    "UPDATE lists SET list_text = $1 WHERE chat_id = $2 AND message_id = $3";
+  const list_text_ = list_text.replace(new RegExp("^([-✅✔✓]|- \\[ \\]|- \\[x\\])\\s*" + item_text, "m"), item_text_);
+  const updateTextQuery = "UPDATE lists SET list_text = $1 WHERE chat_id = $2 AND message_id = $3";
   await psqlQuery(updateTextQuery, [list_text_, chatId, messageId]);
 
   try {
-    await bot.telegram.editMessageText(
-      chatId,
-      messageId,
-      undefined,
-      list_text_
-    );
+    const msgObj = { id: messageId, text: list_text_, chatType: chat_type };
+    await updateMessageKeepButton(chatId, msgObj);
   } catch (e) {
     console.error("update tg message failed", e, {
       chatId,

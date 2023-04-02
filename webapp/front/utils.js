@@ -43,6 +43,7 @@ function findChildByCondition($e, condition) {
 
 function animate($e, className) {
   $e.classList.add(className);
+  "Telegram" in window && Telegram.WebApp.HapticFeedback?.selectionChanged?.();
   $e.addEventListener(
     "animationend",
     createRemoveClassListener($e, className),

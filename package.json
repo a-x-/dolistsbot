@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "echo bot && pwd && ls && bun src/index.ts",
-    "deploy:static": "rsync -azvhrP . --exclude tdl --exclude node_modules root@178.62.225.38:/var/www/dolistbot-server",
+    "deploy:static": "rsync -azvhrP . --exclude tdl --exclude node_modules --delete root@178.62.225.38:/var/www/dolistbot-server",
     "deploy:static:watch": "nodemon --watch . -e js,ts,json,html,css,Dockerfile,lockb,env --exec 'npm run deploy:static'",
     "deploy:update:bot": "ssh root@178.62.225.38 'cd /var/www/dolistbot-server && docker compose up --build --no-deps -d bot'"
   },
