@@ -3,7 +3,7 @@
     "lib": [
       "ESNext"
     ],
-    "module": "esnext",
+    "module": "NodeNext",
     "target": "esnext",
     "moduleResolution": "nodenext",
     "strict": true,
@@ -15,5 +15,9 @@
     "types": [
       "bun-types" // add Bun global
     ]
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "webapp"
+  ]
 }

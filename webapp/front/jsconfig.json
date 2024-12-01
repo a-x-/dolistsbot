@@ -9,7 +9,7 @@
   },
   "typeAcquisition": {
     "include": [
-      "web"
+      "."
     ]
   }
 }

@@ -1,14 +1,14 @@
 {
   "name": "front",
   "version": "1.0.0",
-  "description": "",
+  "author": "",
   "main": "index.html",
+  "dependencies": {
+    "@types/telegram-web-app": "^7.10.1"
+  },
+  "description": "",
+  "license": "ISC",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "telegram-webapps-types": "^1.0.5"
   }
 }
