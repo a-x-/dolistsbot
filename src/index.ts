@@ -18,7 +18,7 @@ import { AnyCtx, Message } from "../telegraf.js";
 import { handle } from "./handlers.js";
 import { isAnyTextMessageCtx, getAnyMessage } from "./utils/utils.js";
 import server from "./server.js";
-import "./utils/fix-crypto.js";
+//import "./utils/fix-crypto.js";
 import "./db/migrations.js";
 
 if (!process.env.BOT_TOKEN) throw new Error("SET_BOT_TOKEN");
@@ -34,6 +34,10 @@ bot.on("message", handleMessage);
 bot.on("channel_post", handleMessage);
 bot.on("edited_message", handleEdit);
 bot.on("edited_channel_post", handleEdit);
+bot.catch((err, ctx) => {
+  console.error("Catched error", err);
+  ctx.reply("💩 Нишмагла: " + (err instanceof Error ? err.message : err));
+});
 
 async function handleMessage(ctx: AnyCtx<Message>) {
   console.log("on message", ctx.message);
@@ -70,7 +74,7 @@ const webhook = {
 console.log("starting bot...", webhook);
 
 // Start the bot
-bot.launch({ webhook });
+bot.launch();//({ webhook });
 
 console.log("bot started! " + process.env.BOT_NICK?.replace("@", "https://t.me/"));
 

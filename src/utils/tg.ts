@@ -1,7 +1,7 @@
 import { Markup } from "telegraf";
 import { PartialMsg } from "../../telegraf.js";
 
-export function addPopupButton(
+export async function addPopupButton(
   chatId: number,
   message: PartialMsg,
   { aim = "create" }: { aim?: "create" | "update" } = {}
@@ -14,10 +14,27 @@ export function addPopupButton(
     "Tick items",
     `https://dolistbot.invntrm.ru/?chatId=${chatId}&messageId=${message.id}`
   );
-  if (isChannel) {
-    return bot.telegram.editMessageText(chatId, message.id, undefined, message.text, Markup.inlineKeyboard([button]));
+  if (isChannel) { 
+    try {
+      return await bot.telegram.editMessageText(
+        chatId,
+        message.id,
+        undefined,
+        message.text,
+        Markup.inlineKeyboard([button])
+      );
+    } catch (e) {
+      if (
+        e instanceof Error &&
+        e.message.includes("specified new message content and reply markup are exactly the same")
+      ) {
+        return;
+      }
+      console.error("FAIL: addPopupButton", e, typeof e, e instanceof Error && e.message);
+      throw e;
+    }
   } else if (aim === "create") {
-    return bot.telegram.sendMessage(chatId, "⌨️", Markup.inlineKeyboard([button]));
+    return await bot.telegram.sendMessage(chatId, "⌨️", Markup.inlineKeyboard([button]));
   }
 }
 

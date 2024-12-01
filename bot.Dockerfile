@@ -1,4 +1,4 @@
-FROM oven/bun:0.5
+FROM oven/bun:alpine
 
 # Set the working directory to /app
 WORKDIR /app

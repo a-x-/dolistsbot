@@ -1,11 +1,29 @@
 import { Message } from "telegraf/types";
 import { AnyCtx, ChannelCtx, Ctx, EditChannelCtx, EditCtx } from "../../telegraf.js";
+import { TodoItem } from "../../types.js";
 
-export function retrieveItems(text: string): string[] {
+export const tickTextRxStr = "^\\s*(- \\[ \\]|- \\[x\\]|[-✅✔✓*+]|\\d+.)\\s*";
+export const RX = {
+  tickText: new RegExp(tickTextRxStr),
+  completed: /^\s*([✅✔✓*+]|- \[x\])\s*/,
+};
+
+export function regExpEscape(string: string) {
+  return string.replace(/[-[\]{}()*+!<=:?.\/\\^$|#\s,]/g, "\\$&");
+}
+
+/**
+ * @todo sub-lists
+ */
+export function retrieveItems(text: string): TodoItem[] {
   return text
-    .replace(/^(- \[ \]|- \[x\]|[-✅✔✓])\s*/gm, "") // todo: sub-lists
     .split("\n")
-    .slice(1); // Ignore the first line starting with #todo
+    .slice(1)
+    .filter((item) => item.trim().length > 0)
+    .map((item) => {
+      const completed = RX.completed.test(item);
+      return { completed, text: item.replace(RX.tickText, "") };
+    });
 }
 
 export function isTextMessageCtx(ctx: AnyCtx<Message>): ctx is Ctx<Message.TextMessage> {

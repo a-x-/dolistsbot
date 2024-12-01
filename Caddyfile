@@ -1,10 +1,10 @@
 https://dolistbot.invntrm.ru {
-  root * /var/www/dolistbot-server/webapp/front
-  file_server
-  
-  # Reverse proxy all API requests to the service on port 3446
-  reverse_proxy /api/* localhost:3446
-  
-  # Optional: Enable gzip compression
-  encode gzip
+	root * /var/www/dolistbot-server/webapp/front
+	file_server
+
+	# Reverse proxy all API requests to the service on port 3446
+	reverse_proxy /api/* localhost:3446
+
+	# Optional: Enable gzip compression
+	encode gzip
 }

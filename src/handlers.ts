@@ -1,6 +1,6 @@
 import { Message } from "telegraf/types";
 import { Ctx, TextMessageCtx } from "../telegraf.js";
-import { createList, createListItems, deleteListItems, updateList } from "./model.js";
+import * as model from "./model.js";
 import { getAnyMessage, retrieveItems } from "./utils/utils.js";
 import { addPopupButton } from "./utils/tg.js";
 
@@ -10,8 +10,8 @@ export async function handleNewList(ctx: TextMessageCtx) {
 
   const items = retrieveItems(message.text);
   const msgObj = { id: message.message_id, text: message.text, chatType: ctx.chat.type };
-  await createList(ctx.chat.id, msgObj);
-  await createListItems(ctx.chat.id, message.message_id, items);
+  await model.createList(ctx.chat.id, msgObj);
+  await model.createListItems(ctx.chat.id, message.message_id, items);
   await addPopupButton(ctx.chat.id, msgObj);
 }
 
@@ -21,9 +21,9 @@ export async function handleReindex(ctx: Ctx<Message.TextMessage>) {
 
   const items = retrieveItems(message.text);
   const msgObj = { id: message.message_id, text: message.text, chatType: ctx.chat.type };
-  await updateList(ctx.chat.id, msgObj);
-  await deleteListItems(ctx.chat.id, message.message_id);
-  await createListItems(ctx.chat.id, message.message_id, items);
+  await model.updateList(ctx.chat.id, msgObj);
+  await model.deleteListItems(ctx.chat.id, message.message_id);
+  await model.createListItems(ctx.chat.id, message.message_id, items);
   await addPopupButton(ctx.chat.id, msgObj, { aim: "update" });
 }
 export async function handleSlashCommand(ctx: Ctx<Message.TextMessage>) {

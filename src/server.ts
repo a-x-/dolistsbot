@@ -5,7 +5,7 @@
 import { psqlQuery } from "./db/setup.js";
 import { getItem, getItems } from "./model.js";
 import { updateMessageKeepButton } from "./utils/tg.js";
-import { res } from "./utils/utils.js";
+import { regExpEscape, res, tickTextRxStr } from "./utils/utils.js";
 
 console.log("process.env.PG_URL", process.env.PG_URL);
 const port = process.env.SERVER_PORT || 3000;
@@ -66,13 +66,14 @@ export default {
 async function updateMessageByNewItem(chatId: number, messageId: number, item_text: number) {
   const addQuery = `INSERT INTO items (chat_id, message_id, item_text) VALUES ($1, $2, $3)`;
   await psqlQuery(addQuery, [chatId, messageId, item_text]);
-  const getTextQuery = "SELECT list_text FROM lists WHERE chat_id = $1 AND message_id = $2";
+  const getTextQuery = "SELECT list_text, chat_type FROM lists WHERE chat_id = $1 AND message_id = $2";
   const { chat_type, list_text } = (await psqlQuery(getTextQuery, [chatId, messageId])).rows[0];
   const newText = list_text + "\n- " + item_text;
   const updateTextQuery = "UPDATE lists SET list_text = $1 WHERE chat_id = $2 AND message_id = $3";
   await psqlQuery(updateTextQuery, [newText, chatId, messageId]);
 
   const msgObj = { id: messageId, text: newText, chatType: chat_type };
+  console.log("updateMessageByNewItem", { chatId, messageId, item_text, list_text, newText, msgObj });
   await updateMessageKeepButton(chatId, msgObj);
 }
 
@@ -80,7 +81,7 @@ async function updateMessageByItemToggleItem(chatId: number, messageId: number, 
   const getTextQuery = "SELECT list_text, chat_type FROM lists WHERE chat_id = $1 AND message_id = $2";
   const { chat_type, list_text } = (await psqlQuery(getTextQuery, [chatId, messageId])).rows[0];
   const item_text_ = (completed ? "✅ " : "- ") + item_text;
-  const list_text_ = list_text.replace(new RegExp("^([-✅✔✓]|- \\[ \\]|- \\[x\\])\\s*" + item_text, "m"), item_text_);
+  const list_text_ = list_text.replace(new RegExp(tickTextRxStr + regExpEscape(item_text), "m"), item_text_);
   const updateTextQuery = "UPDATE lists SET list_text = $1 WHERE chat_id = $2 AND message_id = $3";
   await psqlQuery(updateTextQuery, [list_text_, chatId, messageId]);
 

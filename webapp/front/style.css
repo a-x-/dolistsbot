@@ -6,7 +6,23 @@
   --tg-accent-color: #34afed;
   --tg-background-color: #f7f8fa;
   --tg-text-color: #4a4a4a;
+  --text-primary: #fff;
+  --white: #fff;
 }
+/* night theme, prefers dark */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tg-primary-color: #002b71;
+    --tg-secondary-color: #414449;
+    --tg-tertiary-color: #282727;
+    --tg-accent-color: #065e89;
+    --tg-background-color: #1c1c1c;
+    --tg-text-color: #cac1c1;
+    --text-primary: #ffffff4d;
+    --white: #000;
+  }
+}
+
 
 input[type="text"] {
   outline: none;
@@ -24,7 +40,7 @@ body {
 
 .header {
   background-color: var(--tg-primary-color);
-  color: #fff;
+  color: var(--text-primary);
   padding: 10px;
   text-align: center;
 }
@@ -46,13 +62,15 @@ body {
   margin-right: 10px;
   padding: 10px;
   width: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: inherit;
 }
 
 .form button[type="submit"] {
   background-color: var(--tg-accent-color);
   border: none;
   border-radius: 3px;
-  color: #fff;
+  color: inherit;
   font-size: 16px;
   padding: 10px;
 }
@@ -84,7 +102,7 @@ label {
 }
 
 .items-list li {
-  background-color: #fff;
+  background-color: var(--white);
   border-bottom: 1px solid var(--tg-tertiary-color);
   padding: 0 16px;
   display: flex;

@@ -1,4 +1,5 @@
 import { PartialMsg } from "../telegraf.js";
+import { TodoItem } from "../types.js";
 import { psqlQuery } from "./db/setup.js";
 
 export async function createList(chatId: number, message: PartialMsg) {
@@ -18,11 +19,11 @@ export async function updateList(chatId: number, message: PartialMsg) {
   await upsertList(chatId, message);
 }
 
-export async function createListItems(chatId: number, messageId: number, items: string[]) {
-  const values = items.map((item) => [chatId, messageId, item]);
+export async function createListItems(chatId: number, messageId: number, items: TodoItem[]) {
+  const values = items.map(({ completed, text }) => [chatId, messageId, text, completed]);
   const query =
-    "INSERT INTO items (chat_id, message_id, item_text) VALUES " +
-    values.map((_, i) => `($${i * 3 + 1}, $${i * 3 + 2}, $${i * 3 + 3})`).join(", ");
+    "INSERT INTO items (chat_id, message_id, item_text, completed) VALUES " +
+    values.map((_, i) => `($${i * 4 + 1}, $${i * 4 + 2}, $${i * 4 + 3}, $${i * 4 + 4})`).join(", ");
   await psqlQuery(query, values.flat());
 }
 
