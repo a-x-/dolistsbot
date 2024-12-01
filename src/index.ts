@@ -13,7 +13,7 @@
 //
 
 import { pool } from "./db/setup.js"; // MUST be imported first!
-import { Telegraf } from "telegraf";
+import { Telegraf, Context } from "telegraf";
 import { AnyCtx, Message } from "../telegraf.js";
 import { handle } from "./handlers.js";
 import { isAnyTextMessageCtx, getAnyMessage } from "./utils/utils.js";
@@ -39,7 +39,7 @@ bot.catch((err, ctx) => {
   ctx.reply("💩 Нишмагла: " + (err instanceof Error ? err.message : err));
 });
 
-async function handleMessage(ctx: AnyCtx<Message>) {
+async function handleMessage(ctx: Context) {
   console.log("on message", ctx.message);
   if (!isAnyTextMessageCtx(ctx)) return;
   const message = getAnyMessage(ctx);
@@ -54,7 +54,7 @@ async function handleMessage(ctx: AnyCtx<Message>) {
     await handle.slashCommand(ctx);
   }
 }
-async function handleEdit(ctx: AnyCtx<Message>) {
+async function handleEdit(ctx: Context) {
   if (!isAnyTextMessageCtx(ctx)) return;
   const message = getAnyMessage(ctx);
   if (!message) return;

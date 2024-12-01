@@ -12,7 +12,8 @@ export async function addPopupButton(
   const kind = isChannel ? "url" : "webApp";
   const button = Markup.button[kind](
     "Tick items",
-    `https://dolistbot.invntrm.ru/?chatId=${chatId}&messageId=${message.id}`
+    // `https://dolistbot.invntrm.ru/?chatId=${chatId}&messageId=${message.id}`
+    `https://t.me/todo_list_helper_bot/edit?startapp=chatId=${chatId},messageId=${message.id}`
   );
   if (isChannel) { 
     try {

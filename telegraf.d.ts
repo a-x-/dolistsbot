@@ -8,7 +8,7 @@ export type Ctx<T> = NarrowedContext<Context<Update>, Update.MessageUpdate<T>>;
 export type ChannelCtx<T> = NarrowedContext<Context<Update>, Update.ChannelPostUpdate<T>>;
 export type EditCtx<T> = NarrowedContext<Context<Update>, Update.EditedMessageUpdate<T>>;
 export type EditChannelCtx<T> = NarrowedContext<Context<Update>, Update.EditedChannelPostUpdate<T>>;
-export type AnyCtx<T> = Ctx<T> | ChannelCtx<T> | EditCtx<T> | EditChannelCtx<T>;
+export type AnyCtx<T> = Context; // Ctx<T> | ChannelCtx<T> | EditCtx<T> | EditChannelCtx<T>;
 export type TextMessageCtx = AnyCtx<Message.TextMessage>;
 
 export type ChatType = "channel" | "private" | "group" | "supergroup";
