@@ -2,6 +2,12 @@ https://dolistbot.invntrm.ru {
 	root * /var/www/dolistbot-server/webapp/front
 	file_server
 
+    # Set cache-control headers for static files
+    header {
+        /assets/* Cache-Control "public, max-age=3600, must-revalidate"
+        / Cache-Control "no-store"
+    }
+
 	# Reverse proxy all API requests to the service on port 3446
 	reverse_proxy /api/* localhost:3446
 
