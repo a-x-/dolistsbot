@@ -1,5 +1,6 @@
 const query = new URLSearchParams(window.location.search);
-const [chatId, messageId] = [query.get("chatId"), query.get("messageId")];
+const [chatId, messageId] = window.Telegram.WebApp.initDataUnsafe.start_param.split(",");
+// const [chatId, messageId] = [query.get("chatId"), query.get("messageId")];
 const state = {
   items: [],
 };
