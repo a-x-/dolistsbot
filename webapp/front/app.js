@@ -1,11 +1,11 @@
-let chatId = window.Telegram.WebApp.initDataUnsafe.chat.id;
-let messageId = ensureNumber(window.Telegram.WebApp.initDataUnsafe.start_param);
+// let chatId = window.Telegram.WebApp.initDataUnsafe?.chat?.id;
+let [chatId,messageId] = window.Telegram.WebApp.initDataUnsafe?.start_param?.split("_").map(ensureNumber);
 
 const query = new URLSearchParams(window.location.search);
 chatId ||= ensureNumber(query.get("chatId"));
 messageId ||= ensureNumber(query.get("messageId"));
 
-log(`${chatId}, ${messageId}`);
+// debug({chatId, messageId});
 const state = {
   items: [],
 };

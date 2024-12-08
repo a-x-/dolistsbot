@@ -76,11 +76,20 @@ function toggleButton() {
 }
 
 function ensureNumber(value) {
-  const number = Number(value);
-  return isNaN(number) ? null : number;
+  return value === '' || isNaN(value) ? null : Number(value);
 }
 
-function log(value) {
+function debug(value) {
   console.log(value);
-  document.querySelector('h1').innerText = value;
+  if (typeof value === "string") {
+    value = decodeURIComponent(value);
+  } else if (typeof value === "object") {
+    value = JSON.stringify(value, null, 2);
+  }
+  const $log = document.createElement("div");
+  // $log.style.whiteSpace = "pre-wrap";
+  // $log.style.wordBreak = "auto-phrase";
+  $log.style.width = "100%";
+  $log.textContent = value;
+  document.body.appendChild($log);
 }
