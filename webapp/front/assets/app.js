@@ -12,6 +12,7 @@ const state = {
 
 const $itemsList = document.getElementById("items-list");
 $itemsList.addEventListener("change", handleCheckboxChange);
+$itemsList.addEventListener("click", handleEditClick);
 
 // Fetch items from API endpoint
 fetch(`/api/items?chatId=${chatId}&messageId=${messageId}`)
@@ -43,16 +44,13 @@ function renderItems(data) {
     const $li = document.createElement("li");
     const $checkbox = document.createElement("input");
     const $label = document.createElement("label");
-    const $deleteButton = document.createElement("button");
     
     $checkbox.type = "checkbox";
     $checkbox.checked = item.completed;
     
     $label.appendChild(document.createTextNode(item.item_text));
-
-    $deleteButton.textContent = "╳";
-    $deleteButton.classList.add("delete-button");
-    $deleteButton.addEventListener("click", handleDeleteClick);
+    
+    const $deleteButton = createDeleteButton();
     
     $li.dataset.id = item.id;
     $li.appendChild($checkbox);
@@ -64,6 +62,14 @@ function renderItems(data) {
 }
 
 $form.addEventListener("submit", handleNewItemSubmit);
+
+function createDeleteButton() {
+  const $deleteButton = document.createElement("button");
+  $deleteButton.textContent = "╳";
+  $deleteButton.classList.add("delete-button");
+  $deleteButton.addEventListener("click", handleDeleteClick);
+  return $deleteButton;
+}
 
 /**
  * @param {Event} event
@@ -109,7 +115,8 @@ function handleNewItemSubmit(event) {
 async function handleCheckboxChange(event) {
   if (
     !(event.target instanceof HTMLInputElement) ||
-    event.target.tagName.toUpperCase() !== "INPUT"
+    event.target.tagName.toUpperCase() !== "INPUT" ||
+    event.target.type !== "checkbox"
   ) {
     return;
   }
@@ -188,6 +195,62 @@ async function handleDeleteClick(event) {
           renderItems(response);
         });
     });
+  } catch (error) {
+    console.error(error);
+    animate($li, "request-error");
+  }
+}
+
+function handleEditClick(event) {
+  if (!(event.target instanceof HTMLLabelElement)) return;
+  const $li = findParentByCondition(
+    event.target,
+    (el) => el.tagName.toUpperCase() === "LI"
+  );
+  const $label = event.target;
+  const $input = document.createElement("input");
+  $input.type = "text";
+  $input.value = $label.textContent;
+  $input.classList.add("edit-input");
+  $input.addEventListener("blur", handleEditSubmit);
+  $li.replaceChild($input, $label);
+  const $submitButton = document.createElement("button");
+  $submitButton.textContent = "✓";
+  $submitButton.classList.add("edit-submit");
+  $submitButton.addEventListener("click", handleEditSubmit);  
+  const $deleteButton = $li.querySelector(".delete-button");
+  $li.replaceChild($submitButton, $deleteButton);
+  $input.focus();
+}
+
+async function handleEditSubmit(event) {
+  if (!(event.target instanceof HTMLInputElement)) return;
+  const $li = findParentByCondition(
+    event.target,
+    (el) => el.tagName.toUpperCase() === "LI"
+  );
+  const $input = event.target;
+  const $label = document.createElement("label");
+  $label.textContent = $input.value;
+  $li.replaceChild($label, $input);
+  const $submitButton = document.querySelector(".edit-submit");
+  const $deleteButton = createDeleteButton();
+  $li.replaceChild($deleteButton, $submitButton);
+  const itemId = $li.dataset.id;
+  try {
+    const res = await fetch(`/api/items/${itemId}?chatId=${chatId}&messageId=${messageId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        item_text: $label.textContent,
+      }),
+    });
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
+    }
+    animate($li, "request-success");
   } catch (error) {
     console.error(error);
     animate($li, "request-error");

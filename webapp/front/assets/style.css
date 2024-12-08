@@ -8,6 +8,8 @@
   --tg-text-color: #4a4a4a;
   --text-primary: #fff;
   --white: #fff;
+  --color-success: #4caf50;
+  --color-danger: var(--tg-theme-destructive-text-color);
 }
 /* night theme, prefers dark */
 @media (prefers-color-scheme: dark) {
@@ -64,6 +66,19 @@ body {
   width: 100%;
   background-color: rgba(255, 255, 255, 0.1);
   color: inherit;
+}
+
+.edit-input {
+  border: 1px solid var(--tg-accent-color);
+  border-radius: 3px;
+  font-size: 16px;
+  padding: 10px;
+  width: 100%;
+}
+
+.edit-submit {
+  color: var(--color-success);
+  cursor: pointer;
 }
 
 .form button[type="submit"] {

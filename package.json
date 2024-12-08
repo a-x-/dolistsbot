@@ -7,7 +7,7 @@
     "deploy": "bun run deploy:static && bun run deploy:restart:bot",
     "deploy:static": "rsync -azvhrP . --exclude tdl --exclude node_modules --exclude .git --delete root@161.35.152.167:/var/www/dolistbot-server",
     "deploy:static:watch": "nodemon --watch . -e js,ts,json,html,css,Dockerfile,lockb,env --exec 'bun run deploy:static'",
-    "deploy:restart:bot": "ssh root@161.35.152.167 'cd /var/www/dolistbot-server && docker compose up --build --no-deps -d bot'"
+    "deploy:restart:bot": "ssh root@161.35.152.167 'cd /var/www/dolistbot-server && docker compose up --build --no-deps -d bot && docker compose logs -f bot'"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",
