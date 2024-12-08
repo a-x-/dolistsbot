@@ -5,7 +5,7 @@ const query = new URLSearchParams(window.location.search);
 chatId ||= ensureNumber(query.get("chatId"));
 messageId ||= ensureNumber(query.get("messageId"));
 
-alert(`${chatId}, ${messageId}`);
+log(`${chatId}, ${messageId}`);
 const state = {
   items: [],
 };

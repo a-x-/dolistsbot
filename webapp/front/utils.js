@@ -79,3 +79,8 @@ function ensureNumber(value) {
   const number = Number(value);
   return isNaN(number) ? null : number;
 }
+
+function log(value) {
+  console.log(value);
+  document.querySelector('h1').innerText = value;
+}
