@@ -13,7 +13,7 @@ export async function addPopupButton(
   const button = Markup.button[kind](
     "Tick items",
     // `https://dolistbot.invntrm.ru/?chatId=${chatId}&messageId=${message.id}`
-    `https://t.me/todo_list_helper_bot/edit?startapp=${chatId},${message.id}`
+    `https://t.me/todo_list_helper_bot/edit?startapp=${message.id}`
   );
   if (isChannel) { 
     try {
