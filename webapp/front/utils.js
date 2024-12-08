@@ -70,6 +70,12 @@ function createRemoveClassListener($el, className) {
     );
   };
 }
+
 function toggleButton() {
   $button.disabled = !$input.value.length;
+}
+
+function ensureNumber(value) {
+  const number = Number(value);
+  return isNaN(number) ? null : number;
 }
