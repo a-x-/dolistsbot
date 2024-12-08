@@ -137,3 +137,44 @@ label {
 input[type="text"]:focus-visible {
   border-color: var(--tg-accent-color);
 }
+
+.items-list li button {
+  background-color: transparent;
+  border: none;
+  border-radius: 3px;
+  padding: 0 10px;
+  font-size: 24px;
+}
+
+.items-list li .delete-button {
+  color: var(--tg-theme-destructive-text-color);
+  opacity: .4;
+  cursor:pointer;
+}
+
+.undo-toast {
+  display: flex;
+  align-items: center;
+  background-color: var(--tg-accent-color);
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 5px 10px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.undo-button {
+  background-color: var(--tg-accent-color);
+  border: none;
+  border-radius: 3px;
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 10px;
+  font-weight: 400;
+  pointer-events: none;
+}

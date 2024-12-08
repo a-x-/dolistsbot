@@ -71,10 +71,6 @@ function createRemoveClassListener($el, className) {
   };
 }
 
-function toggleButton() {
-  $button.disabled = !$input.value.length;
-}
-
 function ensureNumber(value) {
   return value === '' || isNaN(value) ? null : Number(value);
 }
@@ -92,4 +88,26 @@ function debug(value) {
   $log.style.width = "100%";
   $log.textContent = value;
   document.body.appendChild($log);
+}
+
+function showUndoToast(text, onUndo) {
+  const $toast = document.createElement("div");
+  const $toastText = document.createElement("div");
+  $toast.classList.add("undo-toast");
+  $toastText.textContent = `«${titleize(text)}» deleted`;
+  $toast.appendChild($toastText);
+  const $undo = document.createElement("button");
+  $undo.textContent = "UNDO";
+  $undo.classList.add("undo-button");
+  $toast.addEventListener("click", () => {
+    $toast.remove();
+    onUndo();
+  });
+  $toast.appendChild($undo);
+  document.body.appendChild($toast);
+  setTimeout(() => $toast.remove(), 10000);
+}
+
+function titleize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }

@@ -33,18 +33,32 @@ $input.addEventListener("animationend", () => {
 // disable/enable button based on input field
 $input.addEventListener("input", toggleButton);
 
+function toggleButton() {
+  $button.disabled = !$input.value.length;
+}
+
 function renderItems(data) {
   $itemsList.innerHTML = "";
   data.items.forEach((item) => {
     const $li = document.createElement("li");
     const $checkbox = document.createElement("input");
+    const $label = document.createElement("label");
+    const $deleteButton = document.createElement("button");
+    
     $checkbox.type = "checkbox";
     $checkbox.checked = item.completed;
-    const $label = document.createElement("label");
+    
     $label.appendChild(document.createTextNode(item.item_text));
+
+    $deleteButton.textContent = "╳";
+    $deleteButton.classList.add("delete-button");
+    $deleteButton.addEventListener("click", handleDeleteClick);
+    
     $li.dataset.id = item.id;
     $li.appendChild($checkbox);
     $li.appendChild($label);
+    $li.appendChild($deleteButton);
+
     $itemsList.appendChild($li);
   });
 }
@@ -83,6 +97,9 @@ function handleNewItemSubmit(event) {
     .catch(() => {
       $input.classList.add("request-error");
       $input.focus();
+    })
+    .finally(() => {
+      toggleButton();
     });
 }
 
@@ -132,19 +149,45 @@ async function handleCheckboxChange(event) {
  * @param {Event} event
  */
 async function handleDeleteClick(event) {
-  if (!(event.target instanceof HTMLInputElement)) return;
+  if (!(event.target instanceof HTMLButtonElement)) return;
 
   const $li = findParentByCondition(
     event.target,
     (el) => el.tagName.toUpperCase() === "LI"
   );
   const itemId = $li.dataset.id;
+  const itemText = $li.querySelector("label").textContent;
   try {
-    await fetch(`/api/items/${itemId}`, {
+    const res = await fetch(`/api/items/${itemId}?chatId=${chatId}&messageId=${messageId}`, {
       method: "DELETE",
     });
-    $li.remove();
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
+    }
+    const data = await res.json();
+    if (data.success) {
+      $li.remove();
+    } else {
+      throw new Error("Item not deleted");
+    }
     state.items = state.items.filter((item) => item.id !== itemId);
+    showUndoToast(itemText, () => {
+      fetch(`/api/items?chatId=${chatId}&messageId=${messageId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          item_text: itemText,
+          completed: false,
+        }),
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          state.items = response.items;
+          renderItems(response);
+        });
+    });
   } catch (error) {
     console.error(error);
     animate($li, "request-error");
@@ -153,7 +196,7 @@ async function handleDeleteClick(event) {
 
 if ("Telegram" in window) {
   Telegram.WebApp.MainButton?.setParams({
-    color: "#0000ff",
+    color: "#34afed",
     is_active: true,
     is_visible: true,
     text: "Готово",

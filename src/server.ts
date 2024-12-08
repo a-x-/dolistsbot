@@ -49,16 +49,18 @@ export default {
         }
         case "DELETE": {
           const itemId = Number(urlObj.pathname.replace("/api/items/", ""));
+          const { item_text } = await getItem(itemId);
           const query = "DELETE FROM items WHERE id = $1";
           await psqlQuery(query, [itemId]);
-          const { item_text } = await getItem(itemId);
+          await updateMessageByDeleteItem(Number(chatId), Number(messageId), item_text);
+          return res({ success: true });
         }
         default:
           return res({ error: "Invalid method" }, 405);
       }
     } catch (e) {
       console.error(e);
-      return res({ error: e instanceof Error ? e.message : "Internal server error" }, 500);
+      return res(e instanceof Error ? { error: e.message, trace: e.stack } : { error: "Internal server error"}, 500);
     }
   },
 };
@@ -97,6 +99,27 @@ async function updateMessageByItemToggleItem(chatId: number, messageId: number, 
       list_text_,
       item_text,
       item_text_,
+    });
+  }
+}
+
+async function updateMessageByDeleteItem(chatId: number, messageId: number, item_text: string) {
+  const getTextQuery = "SELECT list_text, chat_type FROM lists WHERE chat_id = $1 AND message_id = $2";
+  const { chat_type, list_text } = (await psqlQuery(getTextQuery, [chatId, messageId])).rows[0];
+  const list_text_ = list_text.replace(new RegExp(tickTextRxStr + regExpEscape(item_text) + '\n?', "m"), "");
+  const updateTextQuery = "UPDATE lists SET list_text = $1 WHERE chat_id = $2 AND message_id = $3";
+  await psqlQuery(updateTextQuery, [list_text_, chatId, messageId]);
+
+  try {
+    const msgObj = { id: messageId, text: list_text_, chatType: chat_type };
+    await updateMessageKeepButton(chatId, msgObj);
+  } catch (e) {
+    console.error("update tg message failed", e, {
+      chatId,
+      messageId,
+      list_text,
+      list_text_,
+      item_text,
     });
   }
 }
